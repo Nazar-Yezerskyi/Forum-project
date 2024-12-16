@@ -4,8 +4,9 @@ import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config'; //
+import { GoogleStrategy } from './utils/google-strategy';
 @Module({
-  providers: [AuthService],
+  providers: [AuthService,GoogleStrategy],
   controllers: [AuthController],
   imports:[UserModule,
     JwtModule.registerAsync({

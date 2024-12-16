@@ -16,7 +16,7 @@ export class AuthService {
     private async hashPassword(password: string){
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(password, salt);
-        return `${salt}.${hash}`;
+        return `${salt}::${hash}`;
     }
 
     private async checkEmailExists(email: string){
@@ -27,7 +27,7 @@ export class AuthService {
     }
 
     private async verifyPassword(password: string, storedPassword: string){
-        const [salt, storedhash] = storedPassword.split('.');
+        const [salt, storedhash] = storedPassword.split('::');
         const hash = await bcrypt.hash(password, salt);
         return storedhash === hash;
     }
@@ -43,13 +43,13 @@ export class AuthService {
             lastName,
             email,
             rolesId,
-            password: hashedpassword,
+            password: hashedpassword.toString(),
             accountImg,
             verificationToken
         }
         const savedUser = await this.userService.createUser(data)
         
-        const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
+        const verificationUrl = `http://localhost:3000/auth/verify-email?token=${verificationToken}`;
         await this.mailerService.sendMail({
           to: email,
           subject: 'Please confirm your email',
@@ -62,6 +62,7 @@ export class AuthService {
         });
         return savedUser;
     }
+
 
     async signIn(body:{email: string,password: string}){
         const user = await this.userService.findByEmail(body.email);
@@ -109,6 +110,50 @@ export class AuthService {
         const updatedUser = this.userService.verifyUser(user.id)
       
           return updatedUser;
+    }
+
+    async createUserWithGoogle(firstName: string, lastName: string,email: string, picture: string){
+        const rolesId =1
+        const data = {
+            firstName,
+            lastName,
+            email,
+            rolesId,
+            accountImg: picture,
+        }
+        const createdUser = await this.userService.findOrCreateUser(data)
+        return createdUser;
+    }
+
+    async resetPasswordRequest(email: string){
+        const user = await this.userService.findByEmail(email)
+        if(!user){
+            throw new NotFoundException('user not found');
+        }
+        const resetPasswordUrl = `http://localhost:3000/auth/reset-password/${email}`;
+        await this.mailerService.sendMail({
+          to: email,
+          subject: 'Reset your password',
+          text: `Hello ${user.firstName},\n\nReset your password by clicking on the following link: ${resetPasswordUrl}\n\nThank you!`,
+
+          context: {
+            resetPasswordUrl,
+          },
+        });
+    }
+
+    async resetPassword(email: string,password: string, confirmPassword: string ){
+        const user = await this.userService.findByEmail(email)
+        if(!user){
+            throw new BadRequestException('Invalid email');
+        }
+        if(password !== confirmPassword){
+            throw new BadRequestException('Password and confirmPassword must be match');
+        }
+        const hashedpassword = await this.hashPassword(password)
+       
+        const updatedUser = this.userService.updateUser(user.id.toString(),{password: hashedpassword.toString()})
+        return updatedUser;
     }
 
 }

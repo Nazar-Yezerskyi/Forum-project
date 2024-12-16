@@ -64,16 +64,16 @@ export class UserService {
 
     async updateUser(id: string, updateUserDto: UpdateUserDto) {
         const user = await this.findOne(Number(id));  
-        Object.assign(user, updateUserDto);  
+        const updatedData = {... updateUserDto}
 
         const updatedUser = await this.prisma.users.update({
             where:{id: user.id},
-            data:user
+            data:updatedData
         })
         return updatedUser
     }
 
-    async deleteUser(id: number){
+    async deleteUser(id: number) {
         await this.prisma.users.delete({
           where: { id },
         });
@@ -112,4 +112,34 @@ export class UserService {
       
           return updatedUser;
     }
+
+    async findOrCreateUser(userData: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        accountImg?: string;
+      }) {
+        const { email, firstName, lastName, accountImg } = userData;
+    
+        let user = await this.prisma.users.findUnique({
+          where: { email },
+        });
+    
+        if (!user) {
+          user = await this.prisma.users.create({
+            data: {
+              firstName,
+              lastName,
+              email,
+              accountImg,
+              password: '',
+              role: { connect: { id: 1 } }, 
+              isVerified: true
+            },
+          });
+        }
+    
+        return user;
+    }
+    
 }

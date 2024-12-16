@@ -23,7 +23,6 @@ export class JwtAuthGuard implements CanActivate{
                 secret: process.env.JWT_SECRET_KEY
             });
             request.user = payload; 
-            console.log('Decoded payload:', payload);
             return true;
         } catch(error){
             throw new UnauthorizedException('Invalid or expired token')
