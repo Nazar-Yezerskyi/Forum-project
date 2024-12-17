@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dtos/update-user.dtos';
+import { CreateUserDto } from './dtos/create-user.dro';
+import { FindOrCreateUserDto } from './dtos/find-or-create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -32,7 +34,11 @@ export class UserService {
     }
 
     async findOne(id: number){
-        const user = await this.prisma.users.findUnique({where:{id}});
+        const user = await this.prisma.users.findUnique({
+          where:{
+            id
+          }
+        });
         console.log(user)
         if(!user){
             throw new NotFoundException(`User with id ${id} not found`)
@@ -40,22 +46,14 @@ export class UserService {
         return user;
     }
 
-    async createUser(data: {
-        firstName: string,
-        lastName: string,
-        email: string,
-        password: string,
-        rolesId: number,
-        accountImg?: string,
-        verificationToken: string, 
-    }) {
+    async createUser(data: CreateUserDto) {
         return await this.prisma.users.create({
             data: {
                 firstName: data.firstName,
                 lastName: data.lastName,
                 email: data.email,
                 password: data.password,
-                rolesId: data.rolesId,
+                roleId: data.roleId,
                 accountImg: data.accountImg || null,
                 verificationToken: data.verificationToken
             },
@@ -63,11 +61,13 @@ export class UserService {
     }
 
     async updateUser(id: string, updateUserDto: UpdateUserDto) {
-        const user = await this.findOne(Number(id));  
-        const updatedData = {... updateUserDto}
+        const user = await this.findOne(+id);  
+        const updatedData = {...updateUserDto}
 
         const updatedUser = await this.prisma.users.update({
-            where:{id: user.id},
+            where:{
+              id: user.id
+            },
             data:updatedData
         })
         return updatedUser
@@ -75,17 +75,27 @@ export class UserService {
 
     async deleteUser(id: number) {
         await this.prisma.users.delete({
-          where: { id },
+          where: { 
+            id 
+          },
         });
     }
 
     async findByEmail(email: string) {
-        const user = await this.prisma.users.findUnique({ where: { email } });
+        const user = await this.prisma.users.findUnique({ 
+          where: {
+            email 
+          } 
+        });
         return user;
     }
 
     async findByToken(verificationToken: string){
-        const user = await this.prisma.users.findFirst({where:{verificationToken}})
+        const user = await this.prisma.users.findFirst({
+          where: {
+            verificationToken
+          }
+        })
         if(!user){
             throw new NotFoundException(`User not found`)
         }
@@ -94,17 +104,21 @@ export class UserService {
     
     async verifyUser(id: number){
         const updatedUser = await this.prisma.users.update({
-            where: { id },
+            where: { 
+              id 
+            },
             data: {
-                isVerified: true,  
+              isVerified: true,  
               verificationToken: null,  
             },
           });
-      
+          return updatedUser;
     }
     async updateLastLogIn(id: number){
         const updatedUser = await this.prisma.users.update({
-            where: { id },
+            where: { 
+              id 
+            },
             data: {
               lastLogIn: new Date(), 
             },
@@ -113,16 +127,13 @@ export class UserService {
           return updatedUser;
     }
 
-    async findOrCreateUser(userData: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        accountImg?: string;
-      }) {
+    async findOrCreateUser(userData: FindOrCreateUserDto) {
         const { email, firstName, lastName, accountImg } = userData;
     
         let user = await this.prisma.users.findUnique({
-          where: { email },
+          where: { 
+            email 
+          },
         });
     
         if (!user) {
@@ -133,12 +144,11 @@ export class UserService {
               email,
               accountImg,
               password: '',
-              role: { connect: { id: 1 } }, 
+              Roles: { connect: { id: 1 } }, 
               isVerified: true
             },
           });
         }
-    
         return user;
     }
     

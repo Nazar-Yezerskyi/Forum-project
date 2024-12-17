@@ -4,13 +4,14 @@ import { UserService } from 'src/user/user.service';
 import * as crypto from 'crypto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { JwtService } from '@nestjs/jwt';
+import { SignInDto } from './dtos/sign-in.dto';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService: UserService, 
         private mailerService: MailerService,
-        private jwt: JwtService
+        private jwt: JwtService,
         ){}
     
     private async hashPassword(password: string){
@@ -32,24 +33,28 @@ export class AuthService {
         return storedhash === hash;
     }
 
-    async createAccount(firstName: string,lastName: string,email: string,password: string,accountImg?: string){
-        const rolesId = 1
+    async createAccount(firstName: string,lastName: string,email: string,password: string,accountImg?: string, confirmPassword?: string){
+        const roleId = 1
         await this.checkEmailExists(email);
+        if(password !== confirmPassword){
+            throw new Error("Password and confirmPassword must mutch");
+        }
         const verificationToken = crypto.randomBytes(32).toString('hex');
+        
        
         const hashedpassword = await this.hashPassword(password) 
         const data = {
             firstName,
             lastName,
             email,
-            rolesId,
+            roleId,
             password: hashedpassword.toString(),
             accountImg,
             verificationToken
         }
         const savedUser = await this.userService.createUser(data)
-        
-        const verificationUrl = `http://localhost:3000/auth/verify-email?token=${verificationToken}`;
+
+        const verificationUrl = `${process.env.API_URL}/auth/verify-email?token=${verificationToken}`;
         await this.mailerService.sendMail({
           to: email,
           subject: 'Please confirm your email',
@@ -63,8 +68,30 @@ export class AuthService {
         return savedUser;
     }
 
+    private async generateAccessToken(id: number, email: string, roleId: number){
+        const accessToken = await this.jwt.signAsync(
+            {
+                userId: id,
+                email:  email,
+                roleId: roleId
+            },
+            { secret: process.env.JWT_SECRET_KEY, expiresIn: process.env.JWT_EXPIRATION_TIME }
+        );
+        return accessToken;
+    }
 
-    async signIn(body:{email: string,password: string}){
+    private async generateRefreshToken(id: number, email: string, roleId: number){
+        const refreshToken = await this.jwt.signAsync(
+            {
+                userId: id,
+                email: email,
+                roleId: roleId
+            },
+            { secret: process.env.JWT_REFRESH_SECRET_KEY, expiresIn: process.env.JWT_REFRESH_EXPIRATION_TIME },
+        );
+        return refreshToken
+    }
+    async signIn(body:SignInDto){
         const user = await this.userService.findByEmail(body.email);
         if(!user){
             throw new NotFoundException('user not found');
@@ -78,28 +105,14 @@ export class AuthService {
         }
         const updatedUser = await this.userService.updateLastLogIn(user.id);
 
-        const accessToken = await this.jwt.signAsync(
-            {
-                userId: user.id,
-                email: user.email,
-                roleId: user.rolesId
-            },
-            { secret: process.env.JWT_SECRET_KEY, expiresIn: process.env.JWT_EXPIRATION_TIME }
-        )
+        const accessToken = await this.generateAccessToken(user.id, user.email, user.roleId)
 
-        const refreshToken = await this.jwt.signAsync(
-            {
-                userId: user.id,
-                email: user.email,
-                roleId: user.rolesId
-            },
-            { secret: process.env.JWT_REFRESH_SECRET_KEY, expiresIn: process.env.JWT_REFRESH_EXPIRATION_TIME },
-          );
-          return {
+        const refreshToken = await this.generateRefreshToken(user.id, user.email, user.roleId)
+        return {
             user: updatedUser,
             accessToken,
             refreshToken,
-          };
+        };
     }
 
     async verifyAccount(verificationToken: string){
@@ -130,12 +143,11 @@ export class AuthService {
         if(!user){
             throw new NotFoundException('user not found');
         }
-        const resetPasswordUrl = `http://localhost:3000/auth/reset-password/${email}`;
+        const resetPasswordUrl = `${process.env.API_URL}/auth/reset-password/${email}`;
         await this.mailerService.sendMail({
           to: email,
           subject: 'Reset your password',
           text: `Hello ${user.firstName},\n\nReset your password by clicking on the following link: ${resetPasswordUrl}\n\nThank you!`,
-
           context: {
             resetPasswordUrl,
           },

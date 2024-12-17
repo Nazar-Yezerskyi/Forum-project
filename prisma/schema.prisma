@@ -14,7 +14,7 @@ model Users {
   password          String
   email             String          @unique
   createdAt         DateTime        @default(now())
-  rolesId           Int
+  roleId            Int
   accountImg        String?
   lastLogIn         DateTime?       @db.Timestamp(6)
   isVerified        Boolean         @default(false)
@@ -23,13 +23,13 @@ model Users {
   comments          Comments[]
   post_likes        Post_likes[]
   posts             Posts[]
-  role              Roles           @relation(fields: [rolesId], references: [id])
+  Roles             Roles           @relation(fields: [roleId], references: [id])
 }
 
 model Roles {
   id    Int     @id @default(autoincrement())
   name  String  @unique(map: "Roles_roleName_key")
-  users Users[]
+  Users Users[]
 }
 
 model Posts {

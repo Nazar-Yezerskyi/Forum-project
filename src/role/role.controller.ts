@@ -13,7 +13,7 @@ export class RoleController {
 
     @Get(':id')
     async getInfoRole(@Param('id') id: string){
-        return await this.roleService.getInfoRole(Number(id))
+        return await this.roleService.getInfoRole(+id)
     }
 
     @Post('')
@@ -25,11 +25,11 @@ export class RoleController {
     @Put(':id')
     @UseGuards(AdminGuard)
     async updateRole(@Param('id') id: string, @Body() name: string){
-        return await this.roleService.updateRole(Number(id), name)
+        return await this.roleService.updateRole(+id, name)
     }
     @Delete(':id')
     @UseGuards(AdminGuard)
     async deleteRole(@Param('id') id: string){
-        return await this.roleService.deleteRole(Number(id))
+        return await this.roleService.deleteRole(+id)
     }
 }

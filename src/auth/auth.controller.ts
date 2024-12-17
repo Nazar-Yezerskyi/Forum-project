@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
-import { UpdateUserDto } from 'src/user/dtos/update-user.dtos';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { SignInDto } from './dtos/sign-in.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,14 +12,11 @@ export class AuthController {
 
     @Post('/sign-up')
     async createAccount(@Body() body: CreateUserDto){
-        if(body.password !== body.confirmPassword){
-            throw new Error("Password and confirmPassword must mutch");
-        }
-        return this.authService.createAccount(body.firstName, body.lastName,body.email, body.password, body.accountImg)
+        return this.authService.createAccount(body.firstName, body.lastName,body.email, body.password, body.accountImg, body.confirmPassword)
     }
 
     @Post('/sign-in')
-    async signIn(@Body() body: {email: string, password: string}){
+    async signIn(@Body() body: SignInDto){
         return this.authService.signIn(body)
     }
 

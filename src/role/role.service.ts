@@ -11,13 +11,15 @@ export class RoleService {
     }
 
     async getInfoRole(id: number){
-        const role = await this.prisma.roles.findUnique({where:{
-            id
+        const role = await this.prisma.roles.findUnique({
+            where: {
+                id
         }});
+        return role;
     }
     async createRole(name: string){
         const role = await this.prisma.roles.create({
-            data:{
+            data: {
                 name
             }});
         return role;
@@ -25,14 +27,20 @@ export class RoleService {
 
     async updateRole(id:number, name: string){
         const role = await this.prisma.roles.update({
-            where: {id},
+            where: {
+                id
+            },
             data:name
         })
         return role;
  
     }
     async deleteRole(id: number){
-        const role = await this.prisma.roles.delete({where:{id}})
+        const role = await this.prisma.roles.delete({
+            where: {
+                id
+            }
+        })
         return role;
     }
 }
