@@ -41,10 +41,13 @@ model Posts {
   createdAt DateTime @default(now())
   title     String   @db.VarChar(255)
   description String
-  author   Users @relation(fields: [authorId], references: [id])
-  authorId Int
-  comments Comments[]
-  post_likes Post_likes[]
+  authorId    Int
+  image       String?
+  updated     DateTime?    @db.Timestamp(6)
+  archived    Boolean      @default(false)
+  comments    Comments[]
+  post_likes  Post_likes[]
+  author      Users        @relation(fields: [authorId], references: [id])
 }
 
 model Comments {
