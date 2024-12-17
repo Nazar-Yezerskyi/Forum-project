@@ -7,6 +7,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
+import { LikesModule } from './likes/likes.module';
 
 
 @Module({
@@ -34,7 +37,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UserModule, 
     RoleModule, 
     PrismaModule, 
-    AuthModule, 
+    AuthModule, PostsModule, CommentsModule, LikesModule, 
   ],
   controllers: [AppController],
   providers: [AppService],
