@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
+import { CategoriesModule } from './categories/categories.module';
 
 
 @Module({
@@ -37,7 +38,7 @@ import { LikesModule } from './likes/likes.module';
     UserModule, 
     RoleModule, 
     PrismaModule, 
-    AuthModule, PostsModule, CommentsModule, LikesModule, 
+    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

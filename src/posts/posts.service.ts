@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CategoriesService } from 'src/categories/categories.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PostsService {
     constructor( 
         private prisma: PrismaService,
+        private categoryService: CategoriesService
         ){}
 
     
@@ -133,6 +135,30 @@ export class PostsService {
             }
         })
        return deletedPost;
+    }
+
+    async addCategoryToPost(postId: number, categoryId: number, userId:number){
+        const post = await this.findOne(postId);
+        if(post.authorId !== userId){
+            throw new BadRequestException('You can only delete your own post');
+        }
+        if(!post){
+            throw new NotFoundException('Post not found')
+        }
+        const addedCategory = await this.categoryService.addCategoryToPost(categoryId,postId)
+        return addedCategory;
+    }
+
+    async deletePostCategory(postId: number, categoryId: number, userId: number){
+        const post = await this.findOne(postId);
+        if(post.authorId !== userId){
+            throw new BadRequestException('You can only delete your own post');
+        }
+        if(!post){
+            throw new NotFoundException('Post not found')
+        }
+        const deletedCategory = await this.categoryService.deletePostCategory(categoryId,postId)
+        return deletedCategory;
     }
  
 }

@@ -55,5 +55,17 @@ export class PostsController {
         return await this.postService.deletePost(+id, userId)
     }
 
+    @Post('/:postId/categories/:categoryId')
+    @UseGuards(JwtAuthGuard)
+    async addCategoryToPost(@Param('postId') postId: string, @Param('categoryId') categoryId: string, @Request() req){
+        const userId = req.user.userId;
+        return await this.postService.addCategoryToPost(+postId,+categoryId,userId);
+    }
 
+    @Delete('/:postId/categories/:categoryId')
+    @UseGuards(JwtAuthGuard)
+    async deletePostCategory(@Param('postId') postId: string, @Param('categoryId') categoryId: string, @Request() req){
+        const userId = req.user.userId;
+        return await this.postService.deletePostCategory(+postId,+categoryId,userId)
+    }
 }
