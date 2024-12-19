@@ -24,6 +24,18 @@ model Users {
   post_likes        Post_likes[]
   posts             Posts[]
   Roles             Roles           @relation(fields: [roleId], references: [id])
+  followedBy Follows[] @relation("followedBy")
+  following  Follows[] @relation("following")
+}
+
+model Follows {
+  id Int @id @default(autoincrement())
+  followedById Int
+  followingId Int
+  followedBy   Users @relation("followedBy", fields: [followedById], references: [id])
+  following    Users @relation("following", fields: [followingId], references: [id])
+  addedDate DateTime          @default(now())
+
 }
 
 model Roles {
