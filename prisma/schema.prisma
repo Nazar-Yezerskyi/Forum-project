@@ -14,25 +14,29 @@ datasource db {
 }
 
 model Users {
-  id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
-  password  String
-  email     String   @unique
-  createdAt DateTime @default(now())
-  rolesId Int
-  role Roles relation(fields: [rolesId], references: [id])
-  posts   Posts[]
-  comments Comments[]
-  post_likes Post_likes[]
-  comment_likes Comment_likes[]
-  putLike Likes[] @relation("putLikeId")
-  getLike  Likes[] @relation("getLikeId")
+  id                Int             @id @default(autoincrement())
+  firstName         String
+  lastName          String
+  password          String
+  email             String          @unique
+  createdAt         DateTime        @default(now())
+  accountImg        String?
+  lastLogIn         DateTime?       @db.Timestamp(6)
+  isVerified        Boolean         @default(false)
+  verificationToken String?
+  roleId            Int
+  comment_likes     Comment_likes[]
+  comments          Comments[]
+  post_likes        Post_likes[]
+  posts             Posts[]
+  Roles             Roles           @relation(fields: [roleId], references: [id])
+  followedBy Follows[] @relation("followedBy")
+  following  Follows[] @relation("following")
 }
 
 model Roles {
-  id        Int  @id @default(autoincrement())
-  roleName  String @unique
+  id    Int     @id @default(autoincrement())
+  name  String  @unique(map: "Roles_roleName_key")
   users Users[]
 }
 
@@ -75,11 +79,12 @@ model Comment_likes {
   comments  Comments @relation(fields: [commentsId], references: [id])
   createdAt DateTime @default(now())
 }
-model Likes {
-  putLike Users @relation("putLikeId", fields: [putLikeId], references: [id])
-  putLikeId Int
-  getLike Users @relation("getLikeId", fields: [getLikeId], references: [id])
-  getLikeId Int
 
-  @@id([putLikeId, getLikeId])
+model Follows {
+  id                                Int      @id @default(autoincrement())
+  followedById                      Int
+  followingId                       Int
+  addedDate                         DateTime @default(now())
+  followedBy   Users @relation("followedBy", fields: [followedById], references: [id])
+  following    Users @relation("following", fields: [followingId], references: [id])
 }
