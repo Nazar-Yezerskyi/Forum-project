@@ -38,7 +38,7 @@ import { CategoriesModule } from './categories/categories.module';
     UserModule, 
     RoleModule, 
     PrismaModule, 
-    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule, 
+    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule 
   ],
   controllers: [AppController],
   providers: [AppService],

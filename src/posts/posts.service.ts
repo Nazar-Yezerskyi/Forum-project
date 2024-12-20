@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -64,7 +64,7 @@ export class PostsService {
             if(roleId === 2 ||userId === post.authorId ){
                 return post
             }
-            throw new BadRequestException('Post archived');
+            throw new NotFoundException('Post archived');
         } 
     }
     
@@ -88,7 +88,7 @@ export class PostsService {
         }
     
         if (userId !== post.authorId) {
-            throw new BadRequestException('You can only update your own post');
+            throw new ForbiddenException('You can only update your own post');
         }
     
         const isArchived = archived === 'true';
@@ -102,7 +102,7 @@ export class PostsService {
     async updatePost(postId: number,userId:number,title?: string,description?: string,image?: string){
         const post = await this.findOne(postId);
         if(userId !== post.authorId){
-            throw new BadRequestException('You can only update your own post');
+            throw new ForbiddenException('You can only update your own post');
         }
         if(!post){
             throw new NotFoundException('Post not found')
@@ -124,7 +124,7 @@ export class PostsService {
     async deletePost(id: number, userId: number){
         const post = await this.findOne(id)
         if(userId !== post.authorId){
-            throw new BadRequestException('You can only delete your own post');
+            throw new ForbiddenException('You can only delete your own post');
         }
         if(!post){
             throw new NotFoundException('Post not found')
@@ -140,7 +140,7 @@ export class PostsService {
     async addCategoryToPost(postId: number, categoryId: number, userId:number){
         const post = await this.findOne(postId);
         if(post.authorId !== userId){
-            throw new BadRequestException('You can only delete your own post');
+            throw new ForbiddenException('You can only add category to your own post');
         }
         if(!post){
             throw new NotFoundException('Post not found')
@@ -152,7 +152,7 @@ export class PostsService {
     async deletePostCategory(postId: number, categoryId: number, userId: number){
         const post = await this.findOne(postId);
         if(post.authorId !== userId){
-            throw new BadRequestException('You can only delete your own post');
+            throw new ForbiddenException('You can only delete your own post');
         }
         if(!post){
             throw new NotFoundException('Post not found')

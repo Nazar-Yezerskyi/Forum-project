@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -47,7 +47,7 @@ export class CommentsService {
     async updateComment(postId: number,commentId: number, content: string, userId: number){
         const comment = await this.findOne(postId, commentId)
         if(userId !== comment.userId){
-            throw new BadRequestException('You can only update your own comment');
+            throw new ForbiddenException('You can only update your own comment');
         }
         if(!comment){
             throw new NotFoundException("Comment not found")
@@ -67,7 +67,7 @@ export class CommentsService {
     async deleteComment(id: number, userId: number){
         const comment = await this.findById(id)
         if(userId !== comment.userId){
-            throw new BadRequestException('You can only delete your own comment');
+            throw new ForbiddenException('You can only delete your own comment');
         }
         if(!comment){
             throw new NotFoundException("Comment not found")

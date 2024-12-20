@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -41,7 +41,7 @@ export class LikesService {
     private async deleteLikePost(id: number, userId: number){
         const likePost = await this.findLikeById(id);
         if(likePost.userId !== userId){
-            throw new BadRequestException('You can only delete your own like');
+            throw new ForbiddenException('You can only delete your own like');
         }
         if(!likePost){
             throw new NotFoundException("Like not found")
@@ -91,7 +91,7 @@ export class LikesService {
     private async deleteLikeComment(id: number, userId: number){
         const findLikeComment = await this.findLikeCommentById(id);
         if(findLikeComment.userId !== userId){
-            throw new BadRequestException('You can only delete your own like');
+            throw new ForbiddenException('You can only delete your own like');
         }
         if(!findLikeComment){
             throw new NotFoundException("Like not found")
