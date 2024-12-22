@@ -14,11 +14,11 @@ model Users {
   password          String
   email             String          @unique
   createdAt         DateTime        @default(now())
-  roleId            Int
   accountImg        String?
   lastLogIn         DateTime?       @db.Timestamp(6)
   isVerified        Boolean         @default(false)
   verificationToken String?
+  roleId            Int
   comment_likes     Comment_likes[]
   comments          Comments[]
   post_likes        Post_likes[]
@@ -33,16 +33,36 @@ model Roles {
 }
 
 model Posts {
-  id          Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  title       String       @db.VarChar(255)
+  id          Int               @id @default(autoincrement())
+  createdAt   DateTime          @default(now())
+  title       String            @db.VarChar(255)
   description String
   authorId    Int
   image       String?
-  updated     DateTime?    @db.Timestamp(6)
+  updated     DateTime?         @db.Timestamp(6)
+  archived    Boolean           @default(false)
   comments    Comments[]
+  categories  Post_categories[]
   post_likes  Post_likes[]
-  author      Users        @relation(fields: [authorId], references: [id])
+  author      Users             @relation(fields: [authorId], references: [id])
+}
+
+model Categories {
+  id          Int               @id @default(autoincrement())
+  createdAt   DateTime          @default(now())
+  title       String            @db.VarChar(255)
+  description String?
+  updated     DateTime?         @db.Timestamp(6)
+  posts       Post_categories[]
+}
+
+model Post_categories {
+  id         Int        @id @default(autoincrement())
+  postId     Int
+  categoryId Int
+  assignedAt DateTime   @default(now())
+  category   Categories @relation(fields: [categoryId], references: [id])
+  post       Posts      @relation(fields: [postId], references: [id])
 }
 
 model Comments {
