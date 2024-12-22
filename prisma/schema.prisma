@@ -24,12 +24,14 @@ model Users {
   post_likes        Post_likes[]
   posts             Posts[]
   Roles             Roles           @relation(fields: [roleId], references: [id])
+  followedBy Follows[] @relation("followedBy")
+  following  Follows[] @relation("following")
 }
 
 model Roles {
   id    Int     @id @default(autoincrement())
   name  String  @unique(map: "Roles_roleName_key")
-  Users Users[]
+  users Users[]
 }
 
 model Posts {
@@ -93,4 +95,13 @@ model Comment_likes {
   createdAt  DateTime @default(now())
   comments   Comments @relation(fields: [commentsId], references: [id])
   user       Users    @relation(fields: [userId], references: [id])
+}
+
+model Follows {
+  id                                Int      @id @default(autoincrement())
+  followedById                      Int
+  followingId                       Int
+  addedDate                         DateTime @default(now())
+  followedBy   Users @relation("followedBy", fields: [followedById], references: [id])
+  following    Users @relation("following", fields: [followingId], references: [id])
 }

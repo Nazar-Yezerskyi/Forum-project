@@ -11,6 +11,7 @@ import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
 import { CategoriesModule } from './categories/categories.module';
+import { FollowersModule } from './followers/followers.module';
 
 
 @Module({
@@ -38,7 +39,7 @@ import { CategoriesModule } from './categories/categories.module';
     UserModule, 
     RoleModule, 
     PrismaModule, 
-    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule 
+    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule, FollowersModule, 
   ],
   controllers: [AppController],
   providers: [AppService],
