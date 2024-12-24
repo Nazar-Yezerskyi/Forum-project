@@ -10,6 +10,7 @@ export class PostsController {
     constructor(private postService: PostsService){}
 
     @Get('')
+    @UseGuards(JwtAuthGuard)
     async findAllPosts(
         @Query('authorId') authorId?: string,
         @Query('title') title?: string,

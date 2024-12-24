@@ -3,10 +3,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dtos/update-user.dtos';
 import { CreateUserDto } from './dtos/create-user.dro';
 import { FindOrCreateUserDto } from './dtos/find-or-create-user.dto';
+import { ActionsService } from 'src/actions/actions.service';
 
 @Injectable()
 export class UserService {
-    constructor(private prisma: PrismaService){}
+    constructor(
+      private prisma: PrismaService,
+      private actionsService: ActionsService
+      ){}
 
     async findAll(username?: string, email?: string) {
         return await this.prisma.users.findMany({
@@ -70,15 +74,18 @@ export class UserService {
             },
             data:updatedData
         })
-        return updatedUser
+        const action = this.actionsService.addAction('Update',user.id,'User',updatedUser.id,updatedUser)
+        return {updatedUser, action}
     }
 
     async deleteUser(id: number) {
-        await this.prisma.users.delete({
+        const deletedUser = await this.prisma.users.delete({
           where: { 
             id 
           },
         });
+        const action = this.actionsService.addAction('Delete',id,'User',deletedUser.id,deletedUser)
+        return {deletedUser, action}
     }
 
     async findByEmail(email: string) {

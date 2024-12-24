@@ -15,8 +15,10 @@ export class CommentsController {
     }
 
     @Get('/:postId/:id')
-    async findOne(@Param('postId') postId: string, @Param('id') id: string){
-        return await this.commentsService.findOne(+postId,+id)
+    @UseGuards(JwtAuthGuard)
+    async findOne(@Param('postId') postId: string, @Param('id') id: string, @Request() req){
+        const userId = req.user.userId;
+        return await this.commentsService.findOne(+postId,+id,userId)
     }
 
     @Post(':postId')

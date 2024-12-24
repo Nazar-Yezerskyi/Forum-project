@@ -26,6 +26,7 @@ model Users {
   Roles             Roles           @relation(fields: [roleId], references: [id])
   followedBy Follows[] @relation("followedBy")
   following  Follows[] @relation("following")
+  actions User_actions[]
 }
 
 model Roles {
@@ -105,3 +106,15 @@ model Follows {
   followedBy   Users @relation("followedBy", fields: [followedById], references: [id])
   following    Users @relation("following", fields: [followingId], references: [id])
 }
+
+model User_actions{
+  id Int @id @default(autoincrement())
+  userId Int
+  action      String
+  entityType  String
+  entityId Int
+  entity Json
+  timestamp DateTime @default(now())
+  user       Users    @relation(fields: [userId], references: [id])
+}
+

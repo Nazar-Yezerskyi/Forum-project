@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ActionsService } from 'src/actions/actions.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -6,7 +7,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class PostsService {
     constructor( 
         private prisma: PrismaService,
-        private categoryService: CategoriesService
+        private categoryService: CategoriesService,
+        private actionsService: ActionsService
         ){}
 
     
@@ -53,6 +55,7 @@ export class PostsService {
             }
         })
         return post
+        
     }
 
     async findOnePost(userId: number, postId: number, roleId: number){
@@ -62,10 +65,13 @@ export class PostsService {
         }
         if(post.archived === true){
             if(roleId === 2 ||userId === post.authorId ){
-                return post
+                const action = await this.actionsService.addAction('Viewed',userId,'Post',post.id,post)
+                return {post,action}
             }
             throw new NotFoundException('Post archived');
-        } 
+        }
+        const action = await this.actionsService.addAction('Viewed',userId,'Post',post.id,post)
+        return {post, action}
     }
     
     async createPost(title: string,description: string,userId: number,image?: string ){
@@ -77,7 +83,8 @@ export class PostsService {
                authorId: userId
             }
         })
-        return post
+        const action = await this.actionsService.addAction('Create',userId,'Post',post.id,{title,description,image})
+        return {post, action}
     }
    
     async changeArchivedStatus(id: number, archived: string, userId: number) {
@@ -92,11 +99,13 @@ export class PostsService {
         }
     
         const isArchived = archived === 'true';
-    
-        return this.prisma.posts.update({
+        
+        const updatedPost = await this.prisma.posts.update({
             where: { id },
             data: { archived: isArchived },
         });
+        const action = await this.actionsService.addAction('Update',userId,'Post',post.id,updatedPost)
+        return {updatedPost, action}
     }
 
     async updatePost(postId: number,userId:number,title?: string,description?: string,image?: string){
@@ -118,7 +127,8 @@ export class PostsService {
                 updated: new Date()
             }
         })
-        return updatedpost;
+        const action = await this.actionsService.addAction('Update',userId,'Post',post.id,updatedpost);
+        return {updatedpost, action};
     }
 
     async deletePost(id: number, userId: number){
@@ -134,7 +144,8 @@ export class PostsService {
                 id
             }
         })
-       return deletedPost;
+        const action = await this.actionsService.addAction('Delete',userId,'Post',post.id,{post})
+        return {deletedPost,action};
     }
 
     async addCategoryToPost(postId: number, categoryId: number, userId:number){
