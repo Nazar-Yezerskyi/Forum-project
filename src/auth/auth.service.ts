@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dtos/sign-in.dto';
+import { ActionsService } from 'src/actions/actions.service';
 
 @Injectable()
 export class AuthService {
@@ -65,6 +66,7 @@ export class AuthService {
             verificationUrl,
           },
         });
+        
         return savedUser;
     }
 

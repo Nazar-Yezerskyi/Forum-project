@@ -1,9 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ActionsService } from 'src/actions/actions.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class FollowersService {
-    constructor(private prisma: PrismaService){}
+    constructor(
+        private prisma: PrismaService,
+        private actionsService: ActionsService
+        ){}
 
     async getFollowers(userId: number){
         const followers = await this.prisma.follows.findMany({
@@ -48,7 +52,8 @@ export class FollowersService {
                 followingId
             }
         })
-        return followUser;
+        const action = await this.actionsService.addAction('Followed',followedById,'User',followUser.id,followUser)
+        return {followUser, action};
     }
 
     async unFollowUser(followedById: number, followingId: number){
@@ -61,6 +66,7 @@ export class FollowersService {
                 id: findFollow.id
             }
         });
-        return unFollowUser;
+        const action = await this.actionsService.addAction('Delete', followedById,'User',findFollow.id,unFollowUser)
+        return {unFollowUser, action};
     }
 }

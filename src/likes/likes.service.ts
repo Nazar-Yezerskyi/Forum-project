@@ -1,9 +1,13 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ActionsService } from 'src/actions/actions.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class LikesService {
-    constructor(private prisma: PrismaService){}
+    constructor(
+        private prisma: PrismaService,
+        private actionsService: ActionsService
+        ){}
 
     private async findLikePost(userId: number, postId: number){
         const likePost = await this.prisma.post_likes.findFirst({
@@ -35,7 +39,8 @@ export class LikesService {
                 postId
             }
         });
-        return likePost;
+        const action = await this.actionsService.addAction('Create',userId,'PostLike',likePost.id,likePost)
+        return {likePost, action};
     }
 
     private async deleteLikePost(id: number, userId: number){
@@ -51,7 +56,8 @@ export class LikesService {
                 id
             }
         });
-        return deletedLike
+        const action = await this.actionsService.addAction('Delete',userId,'PostLike',likePost.id,deletedLike)
+        return {deletedLike, action}
     }
 
     private async findLikeComment(userId: number, commentId: number){
@@ -85,7 +91,8 @@ export class LikesService {
                 commentsId
             }
         })
-        return addLike;
+        const action = await this.actionsService.addAction('Create',userId,'CommentLike',addLike.id,addLike)
+        return {addLike, action};
     }
 
     private async deleteLikeComment(id: number, userId: number){
@@ -101,7 +108,8 @@ export class LikesService {
                 id
             }
         });
-        return deletedLike
+        const action = await this.actionsService.addAction('Delete',userId,'CommentLike',deletedLike.id,deletedLike)
+        return {deletedLike, action}
     }
 
     async addLike(ref: string, userId: number, id: number){

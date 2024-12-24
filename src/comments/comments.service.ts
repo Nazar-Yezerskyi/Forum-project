@@ -1,9 +1,13 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ActionsService } from 'src/actions/actions.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class CommentsService {
-    constructor(private prisma: PrismaService){}
+    constructor(
+        private prisma: PrismaService,
+        private actionsService: ActionsService
+        ){}
 
     async findAllPostComments(postId: number){
         const comments = await this.prisma.comments.findMany({
@@ -14,7 +18,17 @@ export class CommentsService {
         return comments;
     }
 
-    async findOne(postId: number, commentId: number){
+    async findOne(postId: number, commentId: number, userId: number){
+        const comment = await this.prisma.comments.findUnique({
+            where:{
+                id: commentId,
+                postId
+            }
+        });
+        const action = await this.actionsService.addAction('Viewed',userId,'Comment',comment.id,comment)
+        return {comment, action};
+    }
+    private async find(postId: number, commentId: number){
         const comment = await this.prisma.comments.findUnique({
             where:{
                 id: commentId,
@@ -41,11 +55,12 @@ export class CommentsService {
                 content
             }
         });
-        return comment;
+        const action = await this.actionsService.addAction('Create',userId,'Comment',comment.id,comment)
+        return {comment, action};
     }
 
     async updateComment(postId: number,commentId: number, content: string, userId: number){
-        const comment = await this.findOne(postId, commentId)
+        const comment = await this.find(postId, commentId)
         if(userId !== comment.userId){
             throw new ForbiddenException('You can only update your own comment');
         }
@@ -61,7 +76,8 @@ export class CommentsService {
                 updated: new Date()
             }
         })
-        return updatedComment;
+        const action = await this.actionsService.addAction('Update',userId,'Comment',comment.id,updatedComment)
+        return {updatedComment, action};
     }
 
     async deleteComment(id: number, userId: number){
@@ -77,6 +93,7 @@ export class CommentsService {
                 id
             }
         })
-        return deletedComment;   
+        const action = await this.actionsService.addAction('Delete',userId,'Comment',comment.id,deletedComment)
+        return {deletedComment, action};   
     }
 }
