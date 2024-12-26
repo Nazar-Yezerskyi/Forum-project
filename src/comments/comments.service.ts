@@ -1,5 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ActionsService } from 'src/actions/actions.service';
+import { EntityTypes } from 'src/enums/entity-types.enum';
+import { UserActions } from 'src/enums/user-actions.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -25,7 +27,7 @@ export class CommentsService {
                 postId
             }
         });
-        const action = await this.actionsService.addAction('Viewed',userId,'Comment',comment.id,comment)
+        const action = await this.actionsService.addAction(UserActions.VIEWED,userId,EntityTypes.COMMENT,comment.id,comment)
         return {comment, action};
     }
     private async find(postId: number, commentId: number){
@@ -55,7 +57,7 @@ export class CommentsService {
                 content
             }
         });
-        const action = await this.actionsService.addAction('Create',userId,'Comment',comment.id,comment)
+        const action = await this.actionsService.addAction(UserActions.CREATE,userId,EntityTypes.COMMENT,comment.id,comment)
         return {comment, action};
     }
 
@@ -76,7 +78,7 @@ export class CommentsService {
                 updated: new Date()
             }
         })
-        const action = await this.actionsService.addAction('Update',userId,'Comment',comment.id,updatedComment)
+        const action = await this.actionsService.addAction(UserActions.UPDATE,userId,EntityTypes.COMMENT,comment.id,updatedComment)
         return {updatedComment, action};
     }
 
@@ -93,7 +95,7 @@ export class CommentsService {
                 id
             }
         })
-        const action = await this.actionsService.addAction('Delete',userId,'Comment',comment.id,deletedComment)
+        const action = await this.actionsService.addAction(UserActions.DELETE,userId,EntityTypes.COMMENT,comment.id,deletedComment)
         return {deletedComment, action};   
     }
 }

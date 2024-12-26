@@ -1,6 +1,9 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { EntityType } from '@prisma/client';
 import { ActionsService } from 'src/actions/actions.service';
 import { CategoriesService } from 'src/categories/categories.service';
+import { EntityTypes } from 'src/enums/entity-types.enum';
+import { UserActions } from 'src/enums/user-actions.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -65,12 +68,12 @@ export class PostsService {
         }
         if(post.archived === true){
             if(roleId === 2 ||userId === post.authorId ){
-                const action = await this.actionsService.addAction('Viewed',userId,'Post',post.id,post)
+                const action = await this.actionsService.addAction(UserActions.VIEWED,userId,EntityTypes.POST,post.id,post)
                 return {post,action}
             }
             throw new NotFoundException('Post archived');
         }
-        const action = await this.actionsService.addAction('Viewed',userId,'Post',post.id,post)
+        const action = await this.actionsService.addAction(UserActions.VIEWED,userId,EntityTypes.POST,post.id,post)
         return {post, action}
     }
     
@@ -83,7 +86,7 @@ export class PostsService {
                authorId: userId
             }
         })
-        const action = await this.actionsService.addAction('Create',userId,'Post',post.id,{title,description,image})
+        const action = await this.actionsService.addAction(UserActions.CREATE,userId,EntityTypes.POST,post.id,{title,description,image})
         return {post, action}
     }
    
@@ -104,7 +107,7 @@ export class PostsService {
             where: { id },
             data: { archived: isArchived },
         });
-        const action = await this.actionsService.addAction('Update',userId,'Post',post.id,updatedPost)
+        const action = await this.actionsService.addAction(UserActions.UPDATE,userId,EntityTypes.POST,post.id,updatedPost)
         return {updatedPost, action}
     }
 
@@ -127,7 +130,7 @@ export class PostsService {
                 updated: new Date()
             }
         })
-        const action = await this.actionsService.addAction('Update',userId,'Post',post.id,updatedpost);
+        const action = await this.actionsService.addAction(UserActions.UPDATE,userId,EntityTypes.POST,post.id,updatedpost);
         return {updatedpost, action};
     }
 
@@ -144,7 +147,7 @@ export class PostsService {
                 id
             }
         })
-        const action = await this.actionsService.addAction('Delete',userId,'Post',post.id,{post})
+        const action = await this.actionsService.addAction(UserActions.DELETE,userId,EntityTypes.POST,post.id,{post})
         return {deletedPost,action};
     }
 

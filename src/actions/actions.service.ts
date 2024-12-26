@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Action, EntityType, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetStatisticsDto } from './dtos/get-statistics.dto';
+import { UserActions } from 'src/enums/user-actions.enum';
 
 @Injectable()
 export class ActionsService {
@@ -41,13 +42,22 @@ export class ActionsService {
       (type) => EntityType[type as keyof typeof EntityType],
     );
 
+    const userActions =[
+      UserActions.CREATE,
+      UserActions.DELETE,
+      UserActions.FOLLOWED,
+      UserActions.NEWFOLLOWER,
+      UserActions.UPDATE,
+      UserActions.VIEWED
+    ]
+
     const filteredEntityTypes = entityTypesEnum.filter(type => type !== undefined);
 
     const userIdInt = userId ? Number(userId) : undefined;
 
     const where: Prisma.User_actionsWhereInput = {
       action: {
-        in: ['Create', 'Update', 'Delete', 'Viewed', 'Followed', 'NewFollower'],
+        in: userActions,
       },
       timestamp: {
         gte: new Date(startDate),
@@ -72,7 +82,7 @@ export class ActionsService {
 
     filteredEntityTypes.forEach((entityType) => {
       groupedStats[entityType] = {};
-      ['Create', 'Update', 'Delete', 'Viewed', 'Followed', 'NewFollower'].forEach((action) => {
+      userActions.forEach((action) => {
         groupedStats[entityType][action] = {};
       });
     });

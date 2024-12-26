@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ActionsService } from 'src/actions/actions.service';
+import { EntityTypes } from 'src/enums/entity-types.enum';
+import { UserActions } from 'src/enums/user-actions.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -52,7 +54,7 @@ export class FollowersService {
                 followingId
             }
         })
-        const action = await this.actionsService.addAction('Followed',followedById,'User',followUser.id,followUser)
+        const action = await this.actionsService.addAction(UserActions.FOLLOWED,followedById,EntityTypes.USER,followUser.id,followUser)
         return {followUser, action};
     }
 
@@ -66,7 +68,7 @@ export class FollowersService {
                 id: findFollow.id
             }
         });
-        const action = await this.actionsService.addAction('Delete', followedById,'User',findFollow.id,unFollowUser)
+        const action = await this.actionsService.addAction(UserActions.DELETE, followedById,EntityTypes.USER,findFollow.id,unFollowUser)
         return {unFollowUser, action};
     }
 }
