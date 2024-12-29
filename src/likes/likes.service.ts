@@ -1,5 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ActionsService } from 'src/actions/actions.service';
+import { EntityTypes } from 'src/enums/entity-types.enum';
+import { UserActions } from 'src/enums/user-actions.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -39,7 +41,7 @@ export class LikesService {
                 postId
             }
         });
-        const action = await this.actionsService.addAction('Create',userId,'PostLike',likePost.id,likePost)
+        const action = await this.actionsService.addAction(UserActions.CREATE,userId,EntityTypes.POST_LIKE,likePost.id,likePost)
         return {likePost, action};
     }
 
@@ -56,7 +58,7 @@ export class LikesService {
                 id
             }
         });
-        const action = await this.actionsService.addAction('Delete',userId,'PostLike',likePost.id,deletedLike)
+        const action = await this.actionsService.addAction(UserActions.DELETE,userId,EntityTypes.POST_LIKE,likePost.id,deletedLike)
         return {deletedLike, action}
     }
 
@@ -91,7 +93,7 @@ export class LikesService {
                 commentsId
             }
         })
-        const action = await this.actionsService.addAction('Create',userId,'CommentLike',addLike.id,addLike)
+        const action = await this.actionsService.addAction(UserActions.CREATE,userId,EntityTypes.COMMENT_LIKE,addLike.id,addLike)
         return {addLike, action};
     }
 
@@ -108,7 +110,7 @@ export class LikesService {
                 id
             }
         });
-        const action = await this.actionsService.addAction('Delete',userId,'CommentLike',deletedLike.id,deletedLike)
+        const action = await this.actionsService.addAction(UserActions.DELETE,userId,EntityTypes.COMMENT_LIKE,deletedLike.id,deletedLike)
         return {deletedLike, action}
     }
 

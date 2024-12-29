@@ -4,6 +4,8 @@ import { UpdateUserDto } from './dtos/update-user.dtos';
 import { CreateUserDto } from './dtos/create-user.dro';
 import { FindOrCreateUserDto } from './dtos/find-or-create-user.dto';
 import { ActionsService } from 'src/actions/actions.service';
+import { UserActions } from 'src/enums/user-actions.enum';
+import { EntityTypes } from 'src/enums/entity-types.enum';
 
 @Injectable()
 export class UserService {
@@ -74,7 +76,7 @@ export class UserService {
             },
             data:updatedData
         })
-        const action = this.actionsService.addAction('Update',user.id,'User',updatedUser.id,updatedUser)
+        const action = this.actionsService.addAction(UserActions.CREATE,user.id,EntityTypes.USER,updatedUser.id,updatedUser)
         return {updatedUser, action}
     }
 
@@ -84,7 +86,7 @@ export class UserService {
             id 
           },
         });
-        const action = this.actionsService.addAction('Delete',id,'User',deletedUser.id,deletedUser)
+        const action = this.actionsService.addAction(UserActions.DELETE,id,EntityTypes.USER,deletedUser.id,deletedUser)
         return {deletedUser, action}
     }
 
