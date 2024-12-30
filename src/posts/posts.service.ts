@@ -1,5 +1,4 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { EntityType } from '@prisma/client';
 import { ActionsService } from 'src/actions/actions.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { EntityTypes } from 'src/enums/entity-types.enum';
