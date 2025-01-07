@@ -1,24 +1,25 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Action, EntityType, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetStatisticsDto } from './dtos/get-statistics.dto';
 import { UserActions } from 'src/enums/user-actions.enum';
+import { EntityTypes } from 'src/enums/entity-types.enum';
 
 @Injectable()
 export class ActionsService {
   constructor(private prisma: PrismaService) {}
 
   async addAction(
-    action: Action,
+    action: UserActions,
     userId: number,
-    entityType: EntityType,
+    entityType: EntityTypes,
     entityId: number,
     entity: object,
   ) {
-    if (!(action in Action)) {
+    if (!Object.values(UserActions).includes(action)) {
       throw new BadRequestException('Invalid action type');
     }
-    if (!(entityType in EntityType)) {
+    if (!Object.values(EntityTypes).includes(entityType)) {
       throw new BadRequestException('Invalid entityType');
     }
     const addedAction = await this.prisma.user_actions.create({
@@ -38,20 +39,20 @@ export class ActionsService {
 
     const entityTypesArray: string[] = entityTypes.split(',').filter(Boolean);
 
-    const entityTypesEnum: EntityType[] = entityTypesArray.map(
-      (type) => EntityType[type as keyof typeof EntityType],
+    const entityTypesEnum: EntityTypes[] = entityTypesArray.map(
+      (type) => EntityTypes[type as keyof typeof EntityTypes],
     );
 
-    const userActions =[
+    const userActions = [
       UserActions.CREATE,
       UserActions.DELETE,
       UserActions.FOLLOWED,
       UserActions.NEWFOLLOWER,
       UserActions.UPDATE,
-      UserActions.VIEWED
-    ]
+      UserActions.VIEWED,
+    ];
 
-    const filteredEntityTypes = entityTypesEnum.filter(type => type !== undefined);
+    const filteredEntityTypes = entityTypesEnum.filter((type) => type !== undefined);
 
     const userIdInt = userId ? Number(userId) : undefined;
 
@@ -64,7 +65,7 @@ export class ActionsService {
         lte: new Date(endDate),
       },
       entityType: {
-        in: filteredEntityTypes,
+        in: filteredEntityTypes, 
       },
     };
 
