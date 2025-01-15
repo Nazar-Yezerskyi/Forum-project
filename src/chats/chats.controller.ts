@@ -11,13 +11,6 @@ import { UpdateChatNameDto } from './dtos/update-chat-name.dto';
 export class ChatsController {
     constructor(private chatsService: ChatsService){}
 
-    @Get(':chatId')
-    @UseGuards(JwtAuthGuard)
-    async getMessages(@Param('chatId') chatId: string, @Request() req){
-        const userId = req.user.userId;
-        const getMessages = this.chatsService.getMessage(+chatId, userId)
-        return getMessages;
-    }
 
     @Post('create-private-chat')
     @UseGuards(JwtAuthGuard)

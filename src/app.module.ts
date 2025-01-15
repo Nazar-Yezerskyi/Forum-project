@@ -15,6 +15,7 @@ import { FollowersModule } from './followers/followers.module';
 import { ActionsModule } from './actions/actions.module';
 import { ChatsModule } from './chats/chats.module';
 import { ChatGatewayModule } from './chat-gateway/chat-gateway.module';
+import { MessagesModule } from './messages/messages.module';
 
 
 
@@ -43,7 +44,7 @@ import { ChatGatewayModule } from './chat-gateway/chat-gateway.module';
     UserModule, 
     RoleModule, 
     PrismaModule, 
-    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule, FollowersModule, ActionsModule, ChatsModule, ChatGatewayModule,
+    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule, FollowersModule, ActionsModule, ChatsModule, ChatGatewayModule, MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

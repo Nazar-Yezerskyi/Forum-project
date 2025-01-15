@@ -1,6 +1,7 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
+
 @Injectable()
 export class ChatsService {
     constructor(private prisma: PrismaService){}
@@ -111,38 +112,8 @@ export class ChatsService {
         return {addParticipants, message: `Users with Id: ${existingUserIds} already in group`};
     }
     
-    async getMessage(chatId: number, userId: number){
-        const isUserInChat = this.isUserInChat(userId,chatId)
-        if(!isUserInChat){
-            throw new NotFoundException('Chat does not exist')
-        }
-        const chatMessages = await this.prisma.messages.findMany({
-            where: {
-                chatId
-            },
-            include:{
-                sender:true
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        })
-
-        return chatMessages;
-    }
-
-    async addMessage(userId: number, chatId: number,message: string){
-        const data = await this.prisma.messages.create({
-            data:{
-                content: message,
-                senderId: userId,
-                chatId
-            }
-        })
-        return data; 
-    }
-
-    private async isUserInChat(userId: number, chatId: number){
+    
+    async isUserInChat(userId: number, chatId: number){
         const findChat = await this.findOne(chatId)
         if(!findChat){
             throw new NotFoundException(`Chat with id: ${chatId} not found`)
@@ -190,7 +161,7 @@ export class ChatsService {
                 id: isUserInChat.id
             }
         })
-
         return leaveFromGroup;
     }
+
 }
