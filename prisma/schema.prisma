@@ -27,6 +27,9 @@ model Users {
   followedBy Follows[] @relation("followedBy")
   following  Follows[] @relation("following")
   actions User_actions[]
+  chatParticipants  ChatParticipants[]
+  sentMessages      Messages[]
+
 }
 
 model Roles {
@@ -116,5 +119,33 @@ model User_actions{
   entity Json
   timestamp DateTime @default(now())
   user       Users    @relation(fields: [userId], references: [id])
+}
+
+model Chats {
+  id          Int               @id @default(autoincrement())
+  name        String?
+  isGroupChat Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  participants ChatParticipants[]
+  messages    Messages[]
+}
+
+model ChatParticipants {
+  id       Int    @id @default(autoincrement())
+  chatId   Int
+  userId   Int
+  joinedAt DateTime @default(now())
+  chat     Chats  @relation(fields: [chatId], references: [id])
+  user     Users  @relation(fields: [userId], references: [id])
+}
+
+model Messages {
+  id        Int       @id @default(autoincrement())
+  content   String    
+  createdAt DateTime  @default(now())
+  senderId  Int       
+  chatId    Int       
+  sender    Users     @relation(fields: [senderId], references: [id])
+  chat      Chats     @relation(fields: [chatId], references: [id])
 }
 

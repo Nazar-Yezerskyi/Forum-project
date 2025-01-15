@@ -13,6 +13,10 @@ import { LikesModule } from './likes/likes.module';
 import { CategoriesModule } from './categories/categories.module';
 import { FollowersModule } from './followers/followers.module';
 import { ActionsModule } from './actions/actions.module';
+import { ChatsModule } from './chats/chats.module';
+import { ChatGatewayModule } from './chat-gateway/chat-gateway.module';
+import { MessagesModule } from './messages/messages.module';
+
 
 
 @Module({
@@ -40,7 +44,7 @@ import { ActionsModule } from './actions/actions.module';
     UserModule, 
     RoleModule, 
     PrismaModule, 
-    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule, FollowersModule, ActionsModule, 
+    AuthModule, PostsModule, CommentsModule, LikesModule, CategoriesModule, FollowersModule, ActionsModule, ChatsModule, ChatGatewayModule, MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
